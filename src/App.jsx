@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { contractABI } from "./abi";
+import { Bars } from "react-loader-spinner";
 
 function App() {
   const [favNum, setfavNum] = useState("");
   const [updatefavNum, setupdatefavNum] = useState("");
   const [buttonText, setButtonText] = useState("Connect Wallet");
   const [walletAddress, setWalletAddress] = useState("");
+  const [loading, setLoading] = useState(false);
   const contractAddress = "0x5F529B5e3b6C74d0491127538eB5C3DEA61A8952";
   let contract = null;
   let provider = null;
@@ -19,8 +21,8 @@ function App() {
 
   async function connectWallet() {
     if (window.ethereum == null) {
-      console.log("MetaMask not installed; using read-only defaults");
-      provider = ethers.getDefaultProvider();
+      console.log("MetaMask not installed!");
+      alert("Please install MetaMask first.");
     } else {
       provider = new ethers.BrowserProvider(window.ethereum);
       signer = await provider.getSigner();
@@ -62,11 +64,13 @@ function App() {
         alert("Please connect your wallet first.");
         return;
       }
+      setLoading(true);
       const transaction = await contract.updateFavNum(updatefavNum);
       await transaction.wait();
       alert("Successfully updated favorite number!");
       setupdatefavNum("");
       retriveFavNum();
+      setLoading(false);
     } catch (error) {
       console.error("Error updating favorite number:", error);
       alert("Failed to update favorite number. Please try again.");
@@ -79,6 +83,12 @@ function App() {
       <h3>
         Simple app that stores your favorite number on to the Sepolia Testnet.
       </h3>
+      <p>
+        Get some test ETH :{" "}
+        <a href="https://sepoliafaucet.com/" target="_blank">
+          Sepolia Faucet
+        </a>
+      </p>
       <button onClick={connectWallet}>{buttonText}</button>
       <h5>{walletAddress ? `Wallet Address: ${walletAddress}` : ""}</h5>
       <div>
@@ -91,6 +101,15 @@ function App() {
         <button className="button" onClick={updateFavNum}>
           Update
         </button>
+        <Bars
+          height="40"
+          width="40"
+          color="#6e37e1"
+          ariaLabel="bars-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={loading}
+        />
       </div>
       <div>
         <button className="button" onClick={retriveFavNum}>
@@ -100,14 +119,23 @@ function App() {
       </div>
       <p>
         You can find the transactions on{" "}
-        <a href="https://sepolia.etherscan.io/address/0x5F529B5e3b6C74d0491127538eB5C3DEA61A8952">
+        <a
+          href="https://sepolia.etherscan.io/address/0x5F529B5e3b6C74d0491127538eB5C3DEA61A8952"
+          target="_blank"
+        >
           Sepolia Etherscan.
         </a>
       </p>
       <p>
         Made with ❤️ by{" "}
-        <a href="https://pratikkale.in">
-          Pratik Kale | <a href="">Source Code</a>
+        <a href="https://pratikkale.in" target="_blank">
+          Pratik Kale |{" "}
+          <a
+            href="https://github.com/pratikkalein/favnum-sol-ethers"
+            target="_blank"
+          >
+            Source Code
+          </a>
         </a>
       </p>
     </>
